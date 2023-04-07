@@ -1,4 +1,6 @@
-import com.github.javafaker.Faker;
+package client;
+
+import model.User;
 
 public class UserCredentional {
     private  String email;

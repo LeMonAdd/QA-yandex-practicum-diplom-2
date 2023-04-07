@@ -1,8 +1,10 @@
+import client.UserClient;
 import com.github.javafaker.Faker;
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.RestAssured;
-import io.restassured.response.Response;
 import io.restassured.response.ValidatableResponse;
+import model.User;
+import client.UserGenerator;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -10,7 +12,7 @@ import org.junit.Test;
 
 import static java.net.HttpURLConnection.*;
 
-public class LoginUser {
+public class LoginUserTest {
     UserClient userClient;
     String accessToken;
     Faker faker;

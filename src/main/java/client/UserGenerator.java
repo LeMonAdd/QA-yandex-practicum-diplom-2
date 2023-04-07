@@ -1,4 +1,7 @@
+package client;
+
 import com.github.javafaker.Faker;
+import model.User;
 import org.apache.commons.lang3.RandomStringUtils;
 
 public class UserGenerator {
