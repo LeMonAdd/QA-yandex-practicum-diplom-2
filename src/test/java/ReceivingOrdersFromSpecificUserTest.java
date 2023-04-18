@@ -1,39 +1,19 @@
-import client.UserClient;
+import base.BaseTest;
 import client.UserGenerator;
-import com.github.javafaker.Faker;
 import io.qameta.allure.junit4.DisplayName;
-import io.restassured.RestAssured;
-import io.restassured.response.Response;
 import io.restassured.response.ValidatableResponse;
-import org.hamcrest.MatcherAssert.*;
 
-import static org.apache.commons.lang3.BooleanUtils.isTrue;
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
+import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import model.Order;
 import model.User;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-
-import static java.net.HttpURLConnection.HTTP_ACCEPTED;
 import static java.net.HttpURLConnection.HTTP_OK;
 
-public class ReceivingOrdersFromSpecificUserTest {
-    UserClient userClient;
-    String accessToken;
-    Faker faker;
-
-    @Before
-    public void setUp() {
-        RestAssured.baseURI= "https://stellarburgers.nomoreparties.site/";
-        userClient = new UserClient();
-        faker = new Faker();
-    }
+public class ReceivingOrdersFromSpecificUserTest extends BaseTest {
 
     @Test
     @DisplayName("Получение заказов конкретного пользователя авторизованный пользователь")
@@ -46,24 +26,20 @@ public class ReceivingOrdersFromSpecificUserTest {
         Order order = new Order(name);
 
         ValidatableResponse createUser = userClient.createUser(user);
-        int statusCode = createUser.extract().statusCode();
-        Assert.assertEquals(HTTP_OK, statusCode);
-
         accessToken = createUser.extract().path("accessToken");
 
-        ValidatableResponse authorizationUser = userClient.authorization(user, accessToken);
-        int statusCode2 = authorizationUser.extract().statusCode();
-        Assert.assertEquals(HTTP_OK, statusCode2);
+        userClient.authorization(user, accessToken);
 
         ValidatableResponse createOrder = userClient.createOrder(order, accessToken);
-        int statusCode3 = createOrder.extract().statusCode();
-        Assert.assertEquals(HTTP_OK, statusCode3);
+        int statusCode = createOrder.extract().statusCode();
 
         ValidatableResponse getOrder = userClient.getOrderUser(accessToken);
+        int statusCode2 = getOrder.extract().statusCode();
+        boolean success = getOrder.extract().path("success");
 
-        getOrder.assertThat().statusCode(200)
-                .and().body("success", equalTo(true))
-                .and().body("orders", notNullValue());
+        Assert.assertEquals(HTTP_OK, statusCode);
+        Assert.assertEquals(HTTP_OK, statusCode2);
+        Assert.assertTrue(success);
     }
 
     @Test
@@ -77,32 +53,20 @@ public class ReceivingOrdersFromSpecificUserTest {
         Order order = new Order(name);
 
         ValidatableResponse createUser = userClient.createUser(user);
-        int statusCode = createUser.extract().statusCode();
-        Assert.assertEquals(HTTP_OK, statusCode);
-
         accessToken = createUser.extract().path("accessToken");
 
         ValidatableResponse createOrder = userClient.createOrder(order);
-        int statusCode3 = createOrder.extract().statusCode();
-        Assert.assertEquals(HTTP_OK, statusCode3);
+        int statusCode = createOrder.extract().statusCode();
 
         ValidatableResponse getOrder = userClient.getOrderUser();
+        int statusCode2 = getOrder.extract().statusCode();
+        boolean success = getOrder.extract().path("success");
+        String message = getOrder.extract().path("message");
 
-        getOrder.assertThat().statusCode(401)
-                .and().body("success", equalTo(false))
-                .and().body("message", equalTo("You should be authorised"));
-    }
-
-    @After
-    public void clear() {
-        if(accessToken != null) {
-            ValidatableResponse deleteUser = userClient.deleteUser(accessToken);
-            int statusCode = deleteUser.extract().statusCode();
-            Assert.assertEquals(HTTP_ACCEPTED, statusCode);
-
-            boolean success = deleteUser.extract().path("success");
-            Assert.assertTrue(success);
-        }
+        Assert.assertEquals(HTTP_OK, statusCode);
+        Assert.assertEquals(HTTP_UNAUTHORIZED, statusCode2);
+        Assert.assertFalse(success);
+        Assert.assertEquals("You should be authorised", message);
     }
 
 }

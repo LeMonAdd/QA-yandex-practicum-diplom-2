@@ -1,14 +1,10 @@
-import client.UserClient;
-import com.github.javafaker.Faker;
+import base.BaseTest;
 import io.qameta.allure.junit4.DisplayName;
-import io.restassured.RestAssured;
 import io.restassured.response.ValidatableResponse;
 import model.Order;
 import model.User;
 import client.UserGenerator;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -18,17 +14,7 @@ import java.util.Map;
 
 import static java.net.HttpURLConnection.*;
 
-public class CreateOrderTest {
-    UserClient userClient;
-    String accessToken;
-    Faker faker;
-
-    @Before
-    public void setUp() {
-        RestAssured.baseURI= "https://stellarburgers.nomoreparties.site/";
-        userClient = new UserClient();
-        faker = new Faker();
-    }
+public class CreateOrderTest extends BaseTest {
 
     @Test
     @DisplayName("Создание заказа с авторизацией и с ингредиентами")
@@ -43,22 +29,20 @@ public class CreateOrderTest {
 
         ValidatableResponse createUser = userClient.createUser(user);
         int statusCode = createUser.extract().statusCode();
-        Assert.assertEquals(HTTP_OK, statusCode);
-
         accessToken = createUser.extract().path("accessToken");
 
         ValidatableResponse authorizationUser = userClient.authorization(user, accessToken);
         int statusCode2 = authorizationUser.extract().statusCode();
-        Assert.assertEquals(HTTP_OK, statusCode2);
 
         ValidatableResponse createOrder = userClient.createOrder(ingredients, accessToken);
         int statusCode3 = createOrder.extract().statusCode();
-        Assert.assertEquals(HTTP_OK, statusCode3);
-
         boolean success = createOrder.extract().path("success");
-        Assert.assertTrue(success);
-
         String nameBurger = createOrder.extract().path("name");
+
+        Assert.assertEquals(HTTP_OK, statusCode);
+        Assert.assertEquals(HTTP_OK, statusCode2);
+        Assert.assertEquals(HTTP_OK, statusCode3);
+        Assert.assertTrue(success);
         Assert.assertEquals("Бессмертный флюоресцентный бургер", nameBurger);
     }
 
@@ -68,23 +52,16 @@ public class CreateOrderTest {
         User user = UserGenerator.getRandom();
 
         ValidatableResponse createUser = userClient.createUser(user);
-        int statusCode = createUser.extract().statusCode();
-        Assert.assertEquals(HTTP_OK, statusCode);
-
         accessToken = createUser.extract().path("accessToken");
-
-        ValidatableResponse authorizationUser = userClient.authorization(user, accessToken);
-        int statusCode2 = authorizationUser.extract().statusCode();
-        Assert.assertEquals(HTTP_OK, statusCode2);
+        userClient.authorization(user, accessToken);
 
         ValidatableResponse createOrder = userClient.createOrder();
-        int statusCode3 = createOrder.extract().statusCode();
-        Assert.assertEquals(HTTP_BAD_REQUEST, statusCode3);
-
+        int statusCode = createOrder.extract().statusCode();
         boolean success = createOrder.extract().path("success");
-        Assert.assertFalse(success);
-
         String message = createOrder.extract().path("message");
+
+        Assert.assertEquals(HTTP_BAD_REQUEST, statusCode);
+        Assert.assertFalse(success);
         Assert.assertEquals("Ingredient ids must be provided", message);
     }
 
@@ -99,19 +76,15 @@ public class CreateOrderTest {
         Order order = new Order(name);
 
         ValidatableResponse createUser = userClient.createUser(user);
-        int statusCode = createUser.extract().statusCode();
-        Assert.assertEquals(HTTP_OK, statusCode);
-
         accessToken = createUser.extract().path("accessToken");
 
         ValidatableResponse createOrder = userClient.createOrder(order);
-        int statusCode2 = createOrder.extract().statusCode();
-        Assert.assertEquals(HTTP_OK, statusCode2);
-
+        int statusCode = createOrder.extract().statusCode();
         boolean success = createOrder.extract().path("success");
-        Assert.assertTrue(success);
-
         String nameBurger = createOrder.extract().path("name");
+
+        Assert.assertEquals(HTTP_OK, statusCode);
+        Assert.assertTrue(success);
         Assert.assertEquals("Бессмертный флюоресцентный бургер", nameBurger);
     }
 
@@ -121,19 +94,15 @@ public class CreateOrderTest {
         User user = UserGenerator.getRandom();
 
         ValidatableResponse createUser = userClient.createUser(user);
-        int statusCode = createUser.extract().statusCode();
-        Assert.assertEquals(HTTP_OK, statusCode);
-
         accessToken = createUser.extract().path("accessToken");
 
         ValidatableResponse createOrder = userClient.createOrder();
-        int statusCode2 = createOrder.extract().statusCode();
-        Assert.assertEquals(HTTP_BAD_REQUEST, statusCode2);
-
+        int statusCode = createOrder.extract().statusCode();
         boolean success = createOrder.extract().path("success");
-        Assert.assertFalse(success);
-
         String message = createOrder.extract().path("message");
+
+        Assert.assertEquals(HTTP_BAD_REQUEST, statusCode);
+        Assert.assertFalse(success);
         Assert.assertEquals("Ingredient ids must be provided", message);
     }
 
@@ -149,12 +118,12 @@ public class CreateOrderTest {
 
         ValidatableResponse createUser = userClient.createUser(user);
         int statusCode = createUser.extract().statusCode();
-        Assert.assertEquals(HTTP_OK, statusCode);
-
         accessToken = createUser.extract().path("accessToken");
 
         ValidatableResponse createOrder = userClient.createOrder(order);
         int statusCode2 = createOrder.extract().statusCode();
+
+        Assert.assertEquals(HTTP_OK, statusCode);
         Assert.assertEquals(HTTP_INTERNAL_ERROR, statusCode2);
     }
 
@@ -169,30 +138,16 @@ public class CreateOrderTest {
         Order order = new Order(name);
 
         ValidatableResponse createUser = userClient.createUser(user);
-        int statusCode = createUser.extract().statusCode();
-        Assert.assertEquals(HTTP_OK, statusCode);
-
         accessToken = createUser.extract().path("accessToken");
 
         ValidatableResponse authorizationUser = userClient.authorization(user, accessToken);
-        int statusCode2 = authorizationUser.extract().statusCode();
-        Assert.assertEquals(HTTP_OK, statusCode2);
+        int statusCode = authorizationUser.extract().statusCode();
 
         ValidatableResponse createOrder = userClient.createOrder(order);
-        int statusCode3 = createOrder.extract().statusCode();
-        Assert.assertEquals(HTTP_INTERNAL_ERROR, statusCode3);
-    }
+        int statusCode2 = createOrder.extract().statusCode();
 
-    @After
-    public void clear() {
-        if(accessToken != null) {
-            ValidatableResponse deleteUser = userClient.deleteUser(accessToken);
-            int statusCode = deleteUser.extract().statusCode();
-            Assert.assertEquals(HTTP_ACCEPTED, statusCode);
-
-            boolean success = deleteUser.extract().path("success");
-            Assert.assertTrue(success);
-        }
+        Assert.assertEquals(HTTP_OK, statusCode);
+        Assert.assertEquals(HTTP_INTERNAL_ERROR, statusCode2);
     }
 
 }

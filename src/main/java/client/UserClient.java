@@ -1,5 +1,6 @@
 package client;
 
+import io.qameta.allure.Step;
 import io.restassured.response.ValidatableResponse;
 import model.Order;
 import model.User;
@@ -19,6 +20,7 @@ public class UserClient {
     private final String CREATE_ORDER_URI = "api/orders/";
     private final String GET_ORDER_USER_URI = "api/orders/";
 
+    @Step("Создание пользователя")
     public ValidatableResponse createUser(User user) {
         return given()
                 .header("Content-type", "application/json")
@@ -27,6 +29,7 @@ public class UserClient {
                 .then();
     }
 
+    @Step("Удаление пользователя")
     public ValidatableResponse deleteUser(String accessToken) {
         return given()
                 .header("Content-type", "Application/json")
@@ -37,6 +40,7 @@ public class UserClient {
                 .then();
     }
 
+    @Step("Авторизация пользователя")
     public ValidatableResponse authorization(User user, String token) {
         return given()
                 .header("Content-type", "Application/json")
@@ -49,6 +53,7 @@ public class UserClient {
                 .then();
     }
 
+    @Step("Обновление данных о пользователе с токеном")
     public ValidatableResponse update(UserCredentional userCred, String token) {
         return given()
                 .header("Content-type", "Application/json")
@@ -61,6 +66,7 @@ public class UserClient {
                 .then();
     }
 
+    @Step("Обновление данных о пользователе без токена")
     public ValidatableResponse update(UserCredentional userCred) {
         return given()
                 .header("Content-type", "Application/json")
@@ -71,6 +77,7 @@ public class UserClient {
                 .then();
     }
 
+    @Step("Создание заказа. в параметры передаётся Order как -> Map<String, List<String>>")
     public ValidatableResponse createOrder(Map<String, List<String>> order, String token) {
         return given()
                 .header("Content-type", "application/json")
@@ -83,6 +90,7 @@ public class UserClient {
                 .then();
     }
 
+    @Step("Создание заказа. в параметры передаётся Order order c токеном пользователя")
     public ValidatableResponse createOrder(Order order, String token) {
         return given()
                 .header("Content-type", "application/json")
@@ -95,6 +103,7 @@ public class UserClient {
                 .then();
     }
 
+    @Step("Создание заказа. в параметры передаётся Order order")
     public ValidatableResponse createOrder(Order order) {
         return given()
                 .header("Content-type", "application/json")
@@ -105,6 +114,7 @@ public class UserClient {
                 .then();
     }
 
+    @Step("Создание заказа без параметров")
     public ValidatableResponse createOrder() {
         return given()
                 .header("Content-type", "application/json")
@@ -113,6 +123,7 @@ public class UserClient {
                 .then();
     }
 
+    @Step("Вернуть заказ пользователя. В параметре передается токен пользователя")
     public ValidatableResponse getOrderUser(String token) {
         return given()
                 .header("Content-type", "application/json")
@@ -123,6 +134,7 @@ public class UserClient {
                 .then();
     }
 
+    @Step("Вернуть заказ пользователя, без параметров")
     public ValidatableResponse getOrderUser() {
         return given()
                 .header("Content-type", "application/json")

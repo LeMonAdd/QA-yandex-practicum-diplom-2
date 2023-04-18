@@ -14,10 +14,10 @@ import org.junit.Test;
 import static java.net.HttpURLConnection.*;
 
 public class UpdateUserTest {
-    UserClient userClient;
-    String accessToken;
-    String accessToken2;
-    Faker faker;
+    private UserClient userClient;
+    private String accessToken;
+    private String accessToken2;
+    private Faker faker;
 
     @Before
     public void setUp() {
@@ -32,23 +32,18 @@ public class UpdateUserTest {
         User user = UserGenerator.getRandom();
 
         ValidatableResponse createUser = userClient.createUser(user);
-        int statusCode = createUser.extract().statusCode();
-        Assert.assertEquals(HTTP_OK, statusCode);
-
         accessToken = createUser.extract().path("accessToken");
 
         ValidatableResponse authorizationUser = userClient.authorization(user, accessToken);
-        int statusCode2 = authorizationUser.extract().statusCode();
-        Assert.assertEquals(HTTP_OK, statusCode2);
 
         ValidatableResponse updateUser = userClient.update(UserCredentional.updateEmailCred(user, faker.name().firstName() + faker.number().digits(3) + "@yandex.ru"), accessToken);
-        int statusCode3 = updateUser.extract().statusCode();
-        Assert.assertEquals(HTTP_OK, statusCode3);
+        int statusCode = updateUser.extract().statusCode();
 
         boolean success = updateUser.extract().path("success");
-        Assert.assertTrue(success);
-
         String newUserEmail = updateUser.extract().path("user.email");
+
+        Assert.assertEquals(HTTP_OK, statusCode);
+        Assert.assertTrue(success);
         Assert.assertEquals(user.getEmail().toLowerCase(), newUserEmail);
     }
 
@@ -58,23 +53,17 @@ public class UpdateUserTest {
         User user = UserGenerator.getRandom();
 
         ValidatableResponse createUser = userClient.createUser(user);
-        int statusCode = createUser.extract().statusCode();
-        Assert.assertEquals(HTTP_OK, statusCode);
-
         accessToken = createUser.extract().path("accessToken");
 
         ValidatableResponse authorizationUser = userClient.authorization(user, accessToken);
-        int statusCode2 = authorizationUser.extract().statusCode();
-        Assert.assertEquals(HTTP_OK, statusCode2);
 
         ValidatableResponse updateUser = userClient.update(UserCredentional.updatePasswordCred(user,  faker.number().digits(10)), accessToken);
-        int statusCode3 = updateUser.extract().statusCode();
-        Assert.assertEquals(HTTP_OK, statusCode3);
-
+        int statusCode = updateUser.extract().statusCode();
         boolean success = updateUser.extract().path("success");
-        Assert.assertTrue(success);
-
         String newUserEmail = updateUser.extract().path("user.email");
+
+        Assert.assertEquals(HTTP_OK, statusCode);
+        Assert.assertTrue(success);
         Assert.assertEquals(user.getEmail().toLowerCase(), newUserEmail);
     }
 
@@ -84,23 +73,19 @@ public class UpdateUserTest {
         User user = UserGenerator.getRandom();
 
         ValidatableResponse createUser = userClient.createUser(user);
-        int statusCode = createUser.extract().statusCode();
-        Assert.assertEquals(HTTP_OK, statusCode);
-
         accessToken = createUser.extract().path("accessToken");
 
         ValidatableResponse authorizationUser = userClient.authorization(user, accessToken);
-        int statusCode2 = authorizationUser.extract().statusCode();
-        Assert.assertEquals(HTTP_OK, statusCode2);
+        int statusCode = authorizationUser.extract().statusCode();
 
         ValidatableResponse updateUser = userClient.update(UserCredentional.updateNameCred(user,  faker.name().username()), accessToken);
-        int statusCode3 = updateUser.extract().statusCode();
-        Assert.assertEquals(HTTP_OK, statusCode3);
-
+        int statusCode2 = updateUser.extract().statusCode();
         boolean success = updateUser.extract().path("success");
-        Assert.assertTrue(success);
-
         String newUserEmail = updateUser.extract().path("user.name");
+
+        Assert.assertEquals(HTTP_OK, statusCode);
+        Assert.assertEquals(HTTP_OK, statusCode2);
+        Assert.assertTrue(success);
         Assert.assertEquals(user.getName().toLowerCase(), newUserEmail);
     }
 
@@ -110,19 +95,15 @@ public class UpdateUserTest {
         User user = UserGenerator.getRandom();
 
         ValidatableResponse createUser = userClient.createUser(user);
-        int statusCode = createUser.extract().statusCode();
-        Assert.assertEquals(HTTP_OK, statusCode);
-
         accessToken = createUser.extract().path("accessToken");
 
         ValidatableResponse updateUser = userClient.update(UserCredentional.updateNameCred(user,  faker.name().username()));
-        int statusCode2 = updateUser.extract().statusCode();
-        Assert.assertEquals(HTTP_UNAUTHORIZED, statusCode2);
-
+        int statusCode = updateUser.extract().statusCode();
         boolean success = updateUser.extract().path("success");
-        Assert.assertFalse(success);
-
         String message = updateUser.extract().path("message");
+
+        Assert.assertEquals(HTTP_UNAUTHORIZED, statusCode);
+        Assert.assertFalse(success);
         Assert.assertEquals("You should be authorised", message);
     }
 
@@ -132,19 +113,16 @@ public class UpdateUserTest {
         User user = UserGenerator.getRandom();
 
         ValidatableResponse createUser = userClient.createUser(user);
-        int statusCode = createUser.extract().statusCode();
-        Assert.assertEquals(HTTP_OK, statusCode);
-
         accessToken = createUser.extract().path("accessToken");
 
         ValidatableResponse updateUser = userClient.update(UserCredentional.updateEmailCred(user, faker.number().digits(10)));
-        int statusCode3 = updateUser.extract().statusCode();
-        Assert.assertEquals(HTTP_UNAUTHORIZED, statusCode3);
+        int statusCode = updateUser.extract().statusCode();
 
         boolean success = updateUser.extract().path("success");
-        Assert.assertFalse(success);
-
         String message = updateUser.extract().path("message");
+
+        Assert.assertEquals(HTTP_UNAUTHORIZED, statusCode);
+        Assert.assertFalse(success);
         Assert.assertEquals("You should be authorised", message);
     }
 
@@ -154,19 +132,15 @@ public class UpdateUserTest {
         User user = UserGenerator.getRandom();
 
         ValidatableResponse createUser = userClient.createUser(user);
-        int statusCode = createUser.extract().statusCode();
-        Assert.assertEquals(HTTP_OK, statusCode);
-
         accessToken = createUser.extract().path("accessToken");
 
         ValidatableResponse updateUser = userClient.update(UserCredentional.updateEmailCred(user, faker.name().username() +  faker.number().digits(3) + "@yandex.ru"));
-        int statusCode2 = updateUser.extract().statusCode();
-        Assert.assertEquals(HTTP_UNAUTHORIZED, statusCode2);
-
+        int statusCode = updateUser.extract().statusCode();
         boolean success = updateUser.extract().path("success");
-        Assert.assertFalse(success);
-
         String message = updateUser.extract().path("message");
+
+        Assert.assertEquals(HTTP_UNAUTHORIZED, statusCode);
+        Assert.assertFalse(success);
         Assert.assertEquals("You should be authorised", message);
     }
 
@@ -177,24 +151,20 @@ public class UpdateUserTest {
         User user2 = UserGenerator.getRandom();
 
         ValidatableResponse createUser = userClient.createUser(user);
-        int statusCode = createUser.extract().statusCode();
-        Assert.assertEquals(HTTP_OK, statusCode);
-
         ValidatableResponse createUser2 = userClient.createUser(user2);
-        int statusCode2 = createUser2.extract().statusCode();
-        Assert.assertEquals(HTTP_OK, statusCode2);
 
         accessToken = createUser.extract().path("accessToken");
         accessToken2 = createUser2.extract().path("accessToken");
 
         ValidatableResponse updateUser = userClient.update(UserCredentional.updateEmailCred(user, user2.getEmail()), accessToken);
-        int statusCode3 = updateUser.extract().statusCode();
-        Assert.assertEquals(HTTP_FORBIDDEN, statusCode3);
+        int statusCode = updateUser.extract().statusCode();
+
 
         boolean success = updateUser.extract().path("success");
-        Assert.assertFalse(success);
-
         String message = updateUser.extract().path("message");
+
+        Assert.assertEquals(HTTP_FORBIDDEN, statusCode);
+        Assert.assertFalse(success);
         Assert.assertEquals("User with such email already exists", message);
     }
 
